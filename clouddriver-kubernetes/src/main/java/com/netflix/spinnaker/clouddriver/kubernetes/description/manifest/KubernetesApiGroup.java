@@ -55,6 +55,7 @@ public class KubernetesApiGroup {
       new KubernetesApiGroup("certificates.k8s.io");
   public static final KubernetesApiGroup NETWORKING_K8S_IO =
       new KubernetesApiGroup("networking.k8s.io");
+  public static final KubernetesApiGroup ARGO_PROJ = new KubernetesApiGroup("argoproj.io");
 
   @Nonnull private final String name;
 
@@ -78,6 +79,7 @@ public class KubernetesApiGroup {
           RBAC_AUTHORIZATION_K8S_IO,
           CERTIFICATES_K8S_IO,
           NETWORKING_K8S_IO,
+          ARGO_PROJ,
           NONE);
 
   private KubernetesApiGroup(@Nonnull String name) {

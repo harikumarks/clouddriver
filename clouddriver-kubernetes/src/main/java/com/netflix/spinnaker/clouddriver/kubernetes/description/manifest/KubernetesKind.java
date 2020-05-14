@@ -101,6 +101,9 @@ public class KubernetesKind {
       createWithAlias(
           "validatingWebhookConfiguration", null, KubernetesApiGroup.ADMISSIONREGISTRATION_K8S_IO);
 
+  public static final KubernetesKind ARGO_ROLLOUT =
+      createWithAlias("rollout", "ro", KubernetesApiGroup.ARGO_PROJ);
+
   // special kind that should never be assigned to a manifest, used only to represent objects whose
   // kind is not in spinnaker's registry
   public static final KubernetesKind NONE = createWithAlias("none", null, KubernetesApiGroup.NONE);
