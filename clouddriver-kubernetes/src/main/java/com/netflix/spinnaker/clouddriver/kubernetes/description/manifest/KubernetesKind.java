@@ -108,7 +108,7 @@ public class KubernetesKind {
 
   @Getter private final String name;
   @EqualsAndHashCode.Include private final String lcName;
-  private final KubernetesApiGroup apiGroup;
+  @Getter private final KubernetesApiGroup apiGroup;
   @EqualsAndHashCode.Include @Nullable private final KubernetesApiGroup customApiGroup;
 
   private KubernetesKind(String name, @Nullable KubernetesApiGroup apiGroup) {
