@@ -256,7 +256,7 @@ public class KubernetesV2ClusterProvider implements ClusterProvider<KubernetesV2
       serverGroupToServerGroupManagerKeys.put(
           serverGroupDatum.getId(),
           kindMap.translateSpinnakerKind(SERVER_GROUP_MANAGERS).stream()
-              .map(kind -> serverGroupDatum.getRelationships().get(kind.toString()))
+              .map(kind -> serverGroupDatum.getRelationships().get(kind.getName()))
               .filter(Objects::nonNull)
               .flatMap(Collection::stream)
               .map(Keys::parseKey)
