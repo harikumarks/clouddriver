@@ -76,6 +76,25 @@ class BlockDeviceConfig {
       "c5n.18xlarge": defaultBlockDevicesForEbsOnly(),
       "c5n.metal"   : defaultBlockDevicesForEbsOnly(),
 
+      "c5a.large"    : sizedBlockDevicesForEbs(40),
+      "c5a.xlarge"   : sizedBlockDevicesForEbs(80),
+      "c5a.2xlarge"  : sizedBlockDevicesForEbs(80),
+      "c5a.4xlarge"  : sizedBlockDevicesForEbs(120),
+      "c5a.8xlarge"  : sizedBlockDevicesForEbs(120),
+      "c5a.12xlarge" : sizedBlockDevicesForEbs(120),
+      "c5a.16xlarge" : sizedBlockDevicesForEbs(120),
+      "c5a.24xlarge" : sizedBlockDevicesForEbs(120),
+
+      "c6g.medium"   : sizedBlockDevicesForEbs(40),
+      "c6g.large"    : sizedBlockDevicesForEbs(40),
+      "c6g.xlarge"   : sizedBlockDevicesForEbs(80),
+      "c6g.2xlarge"  : sizedBlockDevicesForEbs(80),
+      "c6g.4xlarge"  : sizedBlockDevicesForEbs(120),
+      "c6g.8xlarge"  : sizedBlockDevicesForEbs(120),
+      "c6g.12xlarge" : sizedBlockDevicesForEbs(120),
+      "c6g.16xlarge" : sizedBlockDevicesForEbs(120),
+      "c6g.metal"    : sizedBlockDevicesForEbs(120),
+
       "cc2.8xlarge" : enumeratedBlockDevicesWithVirtualName(4),
 
       "cg1.4xlarge" : sizedBlockDevicesForEbs(120),
@@ -221,6 +240,7 @@ class BlockDeviceConfig {
       "m6g.8xlarge"  : sizedBlockDevicesForEbs(120),
       "m6g.12xlarge" : sizedBlockDevicesForEbs(120),
       "m6g.16xlarge" : sizedBlockDevicesForEbs(120),
+      "m6g.metal"    : sizedBlockDevicesForEbs(120),
 
       "r3.large"    : enumeratedBlockDevicesWithVirtualName(1),
       "r3.xlarge"   : enumeratedBlockDevicesWithVirtualName(1),
@@ -286,6 +306,16 @@ class BlockDeviceConfig {
       "r5ad.4xlarge"  : enumeratedBlockDevicesWithVirtualName(2),
       "r5ad.12xlarge" : enumeratedBlockDevicesWithVirtualName(2),
       "r5ad.24xlarge" : enumeratedBlockDevicesWithVirtualName(4),
+
+      "r6g.medium"   : sizedBlockDevicesForEbs(40),
+      "r6g.large"    : sizedBlockDevicesForEbs(40),
+      "r6g.xlarge"   : sizedBlockDevicesForEbs(80),
+      "r6g.2xlarge"  : sizedBlockDevicesForEbs(80),
+      "r6g.4xlarge"  : sizedBlockDevicesForEbs(120),
+      "r6g.8xlarge"  : sizedBlockDevicesForEbs(120),
+      "r6g.12xlarge" : sizedBlockDevicesForEbs(120),
+      "r6g.16xlarge" : sizedBlockDevicesForEbs(120),
+      "r6g.metal"    : sizedBlockDevicesForEbs(120),
 
       "p2.xlarge"   : sizedBlockDevicesForEbs(80),
       "p2.8xlarge"  : sizedBlockDevicesForEbs(120),

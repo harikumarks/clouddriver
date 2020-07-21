@@ -68,6 +68,7 @@ public class DeployCloudFoundryServerGroupAtomicOperationConverter
     DeployCloudFoundryServerGroupDescription converted =
         getObjectMapper().convertValue(input, DeployCloudFoundryServerGroupDescription.class);
     CloudFoundryCredentials credentials = getCredentialsObject(input.get("credentials").toString());
+    converted.setCredentials(credentials);
     converted.setClient(credentials.getClient());
     converted.setAccountName(credentials.getName());
 
@@ -82,7 +83,6 @@ public class DeployCloudFoundryServerGroupAtomicOperationConverter
     // fail early if we're not going to be able to locate credentials to download the artifact in
     // the deploy operation.
     converted.setArtifactCredentials(getArtifactCredentials(converted));
-
     converted.setApplicationAttributes(
         convertManifest(
             converted.getManifest().stream().findFirst().orElse(Collections.emptyMap())));
@@ -95,8 +95,9 @@ public class DeployCloudFoundryServerGroupAtomicOperationConverter
     String artifactAccount = artifact.getArtifactAccount();
     if (CloudFoundryArtifactCredentials.TYPE.equals(artifact.getType())) {
       CloudFoundryCredentials credentials = getCredentialsObject(artifactAccount);
-      artifact.setUuid(
-          getServerGroupId(artifact.getName(), artifact.getLocation(), credentials.getClient()));
+      String uuid =
+          getServerGroupId(artifact.getName(), artifact.getLocation(), credentials.getClient());
+      converted.setApplicationArtifact(artifact.toBuilder().uuid(uuid).build());
       return new CloudFoundryArtifactCredentials(credentials.getClient());
     }
 
@@ -149,6 +150,8 @@ public class DeployCloudFoundryServerGroupAtomicOperationConverter
                           .flatMap(route -> route.values().stream())
                           .collect(toList()));
               attrs.setEnv(app.getEnv());
+              attrs.setStack(app.getStack());
+              attrs.setCommand(app.getCommand());
               return attrs;
             })
         .get();
@@ -177,5 +180,9 @@ public class DeployCloudFoundryServerGroupAtomicOperationConverter
     @Nullable private List<Map<String, String>> routes;
 
     @Nullable private Map<String, String> env;
+
+    @Nullable private String stack;
+
+    @Nullable private String command;
   }
 }

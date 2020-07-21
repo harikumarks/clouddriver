@@ -26,32 +26,33 @@ import com.netflix.spinnaker.clouddriver.kubernetes.description.job.KubernetesRu
 import com.netflix.spinnaker.clouddriver.kubernetes.op.job.KubernetesRunJobOperation;
 import com.netflix.spinnaker.clouddriver.orchestration.AtomicOperation;
 import com.netflix.spinnaker.clouddriver.security.AbstractAtomicOperationsCredentialsSupport;
-import com.netflix.spinnaker.clouddriver.security.ProviderVersion;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @KubernetesOperation(RUN_JOB)
 @Component
 public class KubernetesRunJobOperationConverter extends AbstractAtomicOperationsCredentialsSupport {
   private final KubernetesV2ArtifactProvider artifactProvider;
+  private final boolean appendSuffix;
 
-  public KubernetesRunJobOperationConverter(KubernetesV2ArtifactProvider artifactProvider) {
+  @Autowired
+  public KubernetesRunJobOperationConverter(
+      KubernetesV2ArtifactProvider artifactProvider,
+      @Value("${kubernetes.jobs.append-suffix:false}") boolean appendSuffix) {
     this.artifactProvider = artifactProvider;
+    this.appendSuffix = appendSuffix;
   }
 
   @Override
   public AtomicOperation convertOperation(Map input) {
-    return new KubernetesRunJobOperation(convertDescription(input), artifactProvider);
+    return new KubernetesRunJobOperation(convertDescription(input), artifactProvider, appendSuffix);
   }
 
   @Override
   public KubernetesRunJobOperationDescription convertDescription(Map input) {
     return KubernetesAtomicOperationConverterHelper.convertDescription(
         input, this, KubernetesRunJobOperationDescription.class);
-  }
-
-  @Override
-  public boolean acceptsVersion(ProviderVersion version) {
-    return version == ProviderVersion.v2;
   }
 }

@@ -26,10 +26,8 @@ import com.netflix.spinnaker.clouddriver.deploy.DescriptionValidationException;
 import com.netflix.spinnaker.clouddriver.deploy.DescriptionValidator;
 import com.netflix.spinnaker.clouddriver.orchestration.sagas.SnapshotAtomicOperationInput.SnapshotAtomicOperationInputCommand;
 import com.netflix.spinnaker.clouddriver.saga.persistence.SagaRepository;
-import com.netflix.spinnaker.clouddriver.security.AccountCredentials;
 import com.netflix.spinnaker.clouddriver.security.AccountCredentialsRepository;
 import com.netflix.spinnaker.clouddriver.security.AllowedAccountsValidator;
-import com.netflix.spinnaker.clouddriver.security.ProviderVersion;
 import com.netflix.spinnaker.kork.exceptions.SystemException;
 import com.netflix.spinnaker.security.AuthenticatedRequest;
 import java.lang.reflect.Method;
@@ -133,11 +131,9 @@ public class OperationsService {
                               Optional.ofNullable(cloudProvider)
                                   .orElse(operationInput.cloudProvider);
 
-                          ProviderVersion providerVersion = getOperationVersion(operationInput);
-
                           AtomicOperationConverter converter =
                               atomicOperationsRegistry.getAtomicOperationConverter(
-                                  descriptionName, provider, providerVersion);
+                                  descriptionName, provider);
 
                           // TODO(rz): What if a preprocessor fails due to a downstream error? How
                           // does this affect retrying?
@@ -156,9 +152,7 @@ public class OperationsService {
 
                           DescriptionValidator validator =
                               atomicOperationsRegistry.getAtomicOperationDescriptionValidator(
-                                  DescriptionValidator.getValidatorName(descriptionName),
-                                  provider,
-                                  providerVersion);
+                                  DescriptionValidator.getValidatorName(descriptionName), provider);
 
                           if (validator == null) {
                             String operationName =
@@ -239,21 +233,6 @@ public class OperationsService {
       throw new DescriptionValidationException(bindingResult.errors);
     }
     return bindingResult.atomicOperation;
-  }
-
-  private ProviderVersion getOperationVersion(OperationInput operation) {
-    final String accountName = operation.computeAccountName();
-    if (accountName == null) {
-      log.warn("Unable to get account name from operation: {}", operation);
-    } else {
-      try {
-        AccountCredentials credentials = accountCredentialsRepository.getOne(accountName);
-        return credentials.getProviderVersion();
-      } catch (Exception e) {
-        log.warn("Unable to determine provider version for account {}", accountName, e);
-      }
-    }
-    return ProviderVersion.v1;
   }
 
   /**

@@ -3,6 +3,7 @@ dependencies {
 
   implementation project(":cats:cats-core")
   implementation project(":cats:cats-redis")
+  implementation project(":clouddriver-api")
   implementation project(":clouddriver-security")
   implementation project(":clouddriver-saga")
 
@@ -14,10 +15,10 @@ dependencies {
   // which appears to require consumers to have core groovy on the classpath
   api "org.codehaus.groovy:groovy"
 
+  implementation "javax.inject:javax.inject:1"
   implementation "net.logstash.logback:logstash-logback-encoder"
   implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
   implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-  implementation "com.netflix.eureka:eureka-client"
   implementation "com.netflix.frigga:frigga"
   implementation "com.netflix.spinnaker.fiat:fiat-api:$fiatVersion"
   implementation "com.netflix.spinnaker.fiat:fiat-core:$fiatVersion"
@@ -33,6 +34,7 @@ dependencies {
   implementation "com.squareup.okhttp:okhttp-urlconnection"
   implementation "com.squareup.retrofit:converter-jackson"
   implementation "com.squareup.retrofit:retrofit"
+  implementation "com.jakewharton.retrofit:retrofit1-okhttp3-client"
   implementation "io.reactivex:rxjava"
   implementation "net.jodah:failsafe:1.0.4"
   implementation "org.apache.commons:commons-exec"

@@ -21,8 +21,7 @@ import static lombok.EqualsAndHashCode.Include;
 
 import com.netflix.spinnaker.clouddriver.kubernetes.config.KubernetesConfigurationProperties.ManagedAccount;
 import com.netflix.spinnaker.clouddriver.kubernetes.config.LinkedDockerRegistryConfiguration;
-import com.netflix.spinnaker.clouddriver.security.AccountCredentials;
-import com.netflix.spinnaker.clouddriver.security.ProviderVersion;
+import com.netflix.spinnaker.clouddriver.security.AbstractAccountCredentials;
 import com.netflix.spinnaker.fiat.model.resources.Permissions;
 import java.util.*;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -33,18 +32,14 @@ import lombok.Getter;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ParametersAreNonnullByDefault
 public class KubernetesNamedAccountCredentials<C extends KubernetesCredentials>
-    implements AccountCredentials<C> {
+    extends AbstractAccountCredentials<C> {
   private final String cloudProvider = "kubernetes";
 
   @Include private final String name;
 
-  @Include private final ProviderVersion providerVersion;
-
   @Include private final String environment;
 
   @Include private final String accountType;
-
-  @Include private final String skin;
 
   @Include private final int cacheThreads;
 
@@ -59,14 +54,10 @@ public class KubernetesNamedAccountCredentials<C extends KubernetesCredentials>
   public KubernetesNamedAccountCredentials(
       ManagedAccount managedAccount, KubernetesCredentialFactory<C> credentialFactory) {
     this.name = managedAccount.getName();
-    this.providerVersion = managedAccount.getProviderVersion();
     this.environment =
         Optional.ofNullable(managedAccount.getEnvironment()).orElse(managedAccount.getName());
     this.accountType =
         Optional.ofNullable(managedAccount.getAccountType()).orElse(managedAccount.getName());
-    this.skin =
-        Optional.ofNullable(managedAccount.getSkin())
-            .orElse(managedAccount.getProviderVersion().toString());
     this.cacheThreads = managedAccount.getCacheThreads();
     this.cacheIntervalSeconds = managedAccount.getCacheIntervalSeconds();
 

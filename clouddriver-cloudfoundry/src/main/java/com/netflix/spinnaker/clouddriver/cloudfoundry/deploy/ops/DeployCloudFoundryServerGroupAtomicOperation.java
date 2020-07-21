@@ -94,7 +94,8 @@ public class DeployCloudFoundryServerGroupAtomicOperation
 
     buildDroplet(packageId, serverGroup.getId(), description);
     scaleApplication(serverGroup.getId(), description);
-    if (description.getApplicationAttributes().getHealthCheckType() != null) {
+    if (description.getApplicationAttributes().getHealthCheckType() != null
+        || description.getApplicationAttributes().getCommand() != null) {
       updateProcess(serverGroup.getId(), description);
     }
 
@@ -190,7 +191,7 @@ public class DeployCloudFoundryServerGroupAtomicOperation
             .createApplication(
                 description.getServerGroupName(),
                 description.getSpace(),
-                description.getApplicationAttributes().getBuildpacks(),
+                description.getApplicationAttributes(),
                 getEnvironmentVars(description));
     getTask()
         .updateStatus(
@@ -287,10 +288,7 @@ public class DeployCloudFoundryServerGroupAtomicOperation
     Map<String, Object> buildInfo = null;
     final Artifact applicationArtifact = description.getApplicationArtifact();
     if (applicationArtifact != null) {
-      final Map<String, Object> metadata = applicationArtifact.getMetadata();
-      if (metadata != null) {
-        buildInfo = (Map<String, Object>) applicationArtifact.getMetadata().get("build");
-      }
+      buildInfo = (Map<String, Object>) applicationArtifact.getMetadata("build");
     }
     if (buildInfo == null) {
       final Map<String, Object> trigger = description.getTrigger();
@@ -426,7 +424,7 @@ public class DeployCloudFoundryServerGroupAtomicOperation
         .getApplications()
         .updateProcess(
             serverGroupId,
-            null,
+            description.getApplicationAttributes().getCommand(),
             description.getApplicationAttributes().getHealthCheckType(),
             description.getApplicationAttributes().getHealthCheckHttpEndpoint());
     getTask().updateStatus(PHASE, "Updated process '" + description.getServerGroupName() + "'");

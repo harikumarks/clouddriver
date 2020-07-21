@@ -21,14 +21,13 @@ import com.netflix.spinnaker.clouddriver.aws.model.AmazonBlockDevice
 import com.netflix.spinnaker.clouddriver.deploy.DeployDescription
 import com.netflix.spinnaker.clouddriver.orchestration.events.OperationEvent
 import com.netflix.spinnaker.clouddriver.security.resources.ApplicationNameable
-import com.netflix.spinnaker.clouddriver.security.resources.ResourcesNameable
 import groovy.transform.AutoClone
 import groovy.transform.Canonical
 
 @AutoClone
 @Canonical
 class BasicAmazonDeployDescription extends AbstractAmazonCredentialsDescription implements
-  DeployDescription, ApplicationNameable, ResourcesNameable {
+  DeployDescription, ApplicationNameable {
   String application
   String amiName
   String stack
@@ -52,6 +51,24 @@ class BasicAmazonDeployDescription extends AbstractAmazonCredentialsDescription 
   Boolean ebsOptimized
   String base64UserData
   Boolean legacyUdf
+
+  /**
+   * When set to true, the created server group will use a launch template instead of a launch configuration.
+   */
+  Boolean setLaunchTemplate = false
+
+  /**
+   * When set to true, the created server group will be configured with IMDSv2.
+   * This is a Launch Template only feature
+   * * https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html
+   */
+  Boolean requireIMDSv2 = false
+
+  /**
+   * Associate an IPv6 address
+   * This is a Launch Template only feature
+   */
+  Boolean associateIPv6Address = false
 
   Collection<OperationEvent> events = []
 
@@ -103,16 +120,6 @@ class BasicAmazonDeployDescription extends AbstractAmazonCredentialsDescription 
   @Override
   Collection<String> getApplications() {
     return [application]
-  }
-
-  @Override
-  Collection<String> getNames() {
-    return (loadBalancers ?: []) + (targetGroups ?: []) + (securityGroupNames ?: [])
-  }
-
-  @Override
-  boolean requiresAuthorization() {
-    return false
   }
 
   @Canonical

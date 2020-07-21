@@ -26,6 +26,7 @@ junitPlatform {
 
 dependencies {
   implementation project(":clouddriver-artifacts")
+  implementation project(":clouddriver-api")
   implementation project(":clouddriver-core")
   implementation project(":clouddriver-security")
   implementation project(":cats:cats-core")
@@ -36,12 +37,14 @@ dependencies {
 
   implementation "org.codehaus.groovy:groovy-all"
 
+  implementation "com.netflix.spinnaker.fiat:fiat-core:$fiatVersion"
   implementation "org.apache.commons:commons-lang3"
   implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml"
   implementation "com.github.ben-manes.caffeine:guava"
   implementation "com.netflix.frigga:frigga"
   implementation "com.netflix.spinnaker.kork:kork-artifacts"
+  implementation "com.netflix.spinnaker.kork:kork-annotations"
   implementation "com.netflix.spinnaker.moniker:moniker"
   implementation "com.netflix.spectator:spectator-api"
   implementation "com.squareup.okhttp:okhttp"

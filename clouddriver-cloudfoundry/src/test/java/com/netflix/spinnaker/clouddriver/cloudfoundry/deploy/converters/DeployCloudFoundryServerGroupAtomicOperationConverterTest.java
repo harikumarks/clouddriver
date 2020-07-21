@@ -22,6 +22,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.netflix.spinnaker.clouddriver.artifacts.ArtifactCredentialsRepository;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.artifacts.ArtifactCredentialsFromString;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.cache.CacheRepository;
@@ -71,10 +73,13 @@ class DeployCloudFoundryServerGroupAtomicOperationConverterTest {
                       .organization(
                           CloudFoundryOrganization.builder().id("org-guid").name("org").build())
                       .build()));
+
+      when(cloudFoundryClient.getApplications().findServerGroupId(any(), any()))
+          .thenReturn("servergroup-id");
     }
 
     return new CloudFoundryCredentials(
-        name, "", "", "", "", "", "", false, 500, 16, cacheRepository) {
+        name, "", "", "", "", "", "", false, 500, 16, cacheRepository, null) {
       public CloudFoundryClient getClient() {
         return cloudFoundryClient;
       }
@@ -142,7 +147,9 @@ class DeployCloudFoundryServerGroupAtomicOperationConverterTest {
                                 List.of(HashMap.of("route", "www.example.com/foo").toJavaMap())
                                     .asJava(),
                                 "env",
-                                HashMap.of("token", "ASDF").toJavaMap())
+                                HashMap.of("token", "ASDF").toJavaMap(),
+                                "command",
+                                "some-command")
                             .toJavaMap())
                     .asJava())
             .toJavaMap();
@@ -158,7 +165,8 @@ class DeployCloudFoundryServerGroupAtomicOperationConverterTest {
                 .setBuildpacks(List.of("buildpack1", "buildpack2").asJava())
                 .setServices(List.of("service1").asJava())
                 .setRoutes(List.of("www.example.com/foo").asJava())
-                .setEnv(HashMap.of("token", "ASDF").toJavaMap()));
+                .setEnv(HashMap.of("token", "ASDF").toJavaMap())
+                .setCommand("some-command"));
   }
 
   @Test
@@ -204,5 +212,35 @@ class DeployCloudFoundryServerGroupAtomicOperationConverterTest {
                 .setMemory("1024")
                 .setDiskQuota("1024")
                 .setBuildpacks(Collections.emptyList()));
+  }
+
+  @Test
+  void convertDescriptionTest() {
+    Map<String, Object> description =
+        ImmutableMap.of(
+            "applicationArtifact",
+                ImmutableMap.of(
+                    "artifactAccount",
+                    "destinationAccount",
+                    "type",
+                    "cloudfoundry/app",
+                    "name",
+                    "server-group-name",
+                    "location",
+                    "cf-region"),
+            "credentials", "test",
+            "manifest",
+                ImmutableList.of(
+                    ImmutableMap.of("applications", ImmutableList.of(ImmutableMap.of()))));
+
+    DeployCloudFoundryServerGroupDescription result = converter.convertDescription(description);
+
+    assertThat(result.getArtifactCredentials()).isNotNull();
+    assertThat(result.getArtifactCredentials().getName()).isEqualTo("cloudfoundry");
+    assertThat(result.getApplicationArtifact()).isNotNull();
+    assertThat(result.getApplicationArtifact().getName()).isEqualTo("server-group-name");
+    assertThat(result.getApplicationArtifact().getArtifactAccount())
+        .isEqualTo("destinationAccount");
+    assertThat(result.getApplicationArtifact().getUuid()).isEqualTo("servergroup-id");
   }
 }

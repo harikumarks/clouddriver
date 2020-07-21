@@ -34,6 +34,7 @@ import com.netflix.spinnaker.clouddriver.cloudfoundry.client.model.v2.Resource;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.client.model.v3.*;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.client.model.v3.Package;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.client.model.v3.Process;
+import com.netflix.spinnaker.clouddriver.cloudfoundry.deploy.description.DeployCloudFoundryServerGroupDescription;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.model.*;
 import com.netflix.spinnaker.clouddriver.model.HealthState;
 import java.io.File;
@@ -534,7 +535,7 @@ public class Applications {
   public CloudFoundryServerGroup createApplication(
       String appName,
       CloudFoundrySpace space,
-      List<String> buildpacks,
+      DeployCloudFoundryServerGroupDescription.ApplicationAttributes applicationAttributes,
       @Nullable Map<String, String> environmentVariables)
       throws CloudFoundryApiException {
     Map<String, ToOneRelationship> relationships = new HashMap<>();
@@ -544,7 +545,7 @@ public class Applications {
             () ->
                 api.createApplication(
                     new CreateApplication(
-                        appName, relationships, environmentVariables, buildpacks)))
+                        appName, relationships, environmentVariables, applicationAttributes)))
         .map(this::map)
         .orElseThrow(
             () ->
@@ -579,6 +580,11 @@ public class Applications {
     if (healthCheckEndpoint != null && !healthCheckEndpoint.isEmpty() && healthCheck != null) {
       healthCheck.setData(new Process.HealthCheckData().setEndpoint(healthCheckEndpoint));
     }
+    if (command != null && command.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Buildpack commands cannot be empty. Please specify a custom command or set it to null to use the original buildpack command.");
+    }
+
     safelyCall(() -> api.updateProcess(guid, new UpdateProcess(command, healthCheck)));
   }
 
@@ -600,12 +606,16 @@ public class Applications {
         .orElse(null);
   }
 
-  @Nullable
+  @Nonnull
   public InputStream downloadPackageBits(String packageGuid) throws CloudFoundryApiException {
     try {
-      Optional<TypedInput> packageInput =
+      Optional<TypedInput> optionalPackageInput =
           safelyCall(() -> api.downloadPackage(packageGuid)).map(Response::getBody);
-      return packageInput.isPresent() ? packageInput.get().in() : null;
+      TypedInput packageInput =
+          optionalPackageInput.orElseThrow(
+              () ->
+                  new CloudFoundryApiException("Failed to retrieve input stream of package bits."));
+      return packageInput.in();
     } catch (IOException e) {
       throw new CloudFoundryApiException(e, "Failed to retrieve input stream of package bits.");
     }

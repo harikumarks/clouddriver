@@ -42,6 +42,7 @@ import java.io.EOFException;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.WillClose;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -340,6 +341,7 @@ public class KubectlJobExecutor {
     return null;
   }
 
+  @Nullable
   public KubernetesManifest get(
       KubernetesV2Credentials credentials, KubernetesKind kind, String namespace, String name) {
     List<String> command = kubectlNamespacedGet(credentials, ImmutableList.of(kind), namespace);

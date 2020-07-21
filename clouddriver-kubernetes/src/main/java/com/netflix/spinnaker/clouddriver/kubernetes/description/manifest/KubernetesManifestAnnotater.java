@@ -21,7 +21,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.netflix.frigga.Names;
+import com.netflix.spinnaker.kork.annotations.NonnullByDefault;
 import com.netflix.spinnaker.kork.artifacts.model.Artifact;
 import com.netflix.spinnaker.moniker.Moniker;
 import java.util.ArrayList;
@@ -176,12 +178,15 @@ public class KubernetesManifestAnnotater {
     storeAnnotation(annotations, VERSION, artifact.getVersion());
   }
 
-  public static Optional<Artifact> getArtifact(KubernetesManifest manifest) {
+  public static Optional<Artifact> getArtifact(KubernetesManifest manifest, String account) {
     Map<String, String> annotations = manifest.getAnnotations();
     String type = getAnnotation(annotations, TYPE, new TypeReference<String>() {});
     if (Strings.isNullOrEmpty(type)) {
       return Optional.empty();
     }
+
+    KubernetesManifest lastAppliedConfiguration =
+        KubernetesManifestAnnotater.getLastAppliedConfiguration(manifest);
 
     return Optional.of(
         Artifact.builder()
@@ -189,6 +194,8 @@ public class KubernetesManifestAnnotater {
             .name(getAnnotation(annotations, NAME, new TypeReference<String>() {}))
             .location(getAnnotation(annotations, LOCATION, new TypeReference<String>() {}))
             .version(getAnnotation(annotations, VERSION, new TypeReference<String>() {}))
+            .putMetadata("lastAppliedConfiguration", lastAppliedConfiguration)
+            .putMetadata("account", account)
             .build());
   }
 
@@ -221,6 +228,7 @@ public class KubernetesManifestAnnotater {
         .build();
   }
 
+  @NonnullByDefault
   public static KubernetesManifestTraffic getTraffic(KubernetesManifest manifest) {
     Map<String, String> annotations = manifest.getAnnotations();
 
@@ -230,9 +238,10 @@ public class KubernetesManifestAnnotater {
     return new KubernetesManifestTraffic(loadBalancers);
   }
 
+  @NonnullByDefault
   public static void setTraffic(KubernetesManifest manifest, KubernetesManifestTraffic traffic) {
     Map<String, String> annotations = manifest.getAnnotations();
-    List<String> loadBalancers = traffic.getLoadBalancers();
+    ImmutableList<String> loadBalancers = traffic.getLoadBalancers();
 
     if (annotations.containsKey(LOAD_BALANCERS)) {
       KubernetesManifestTraffic currentTraffic = getTraffic(manifest);
